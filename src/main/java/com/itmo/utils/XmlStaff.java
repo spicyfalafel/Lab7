@@ -11,10 +11,7 @@ import org.jdom2.output.XMLOutputter;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class XmlStaff {
     // мне кажется парсеры должны писаться не так...
@@ -103,7 +100,7 @@ public class XmlStaff {
      * @param resFileName имя файла в который записать коллекцию
      * @throws FileNotFoundException
      */
-    public static void writeCollectionToFile(HashSet<Dragon> collection, String resFileName) throws FileNotFoundException {
+    public static void writeCollectionToFile(Set<Dragon> collection, String resFileName) throws FileNotFoundException {
         try{
             Document doc = new Document();
             Element root = new Element("collection");

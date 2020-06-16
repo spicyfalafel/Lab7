@@ -5,6 +5,8 @@ import com.itmo.client.User;
 import com.itmo.collection.Dragon;
 import com.itmo.utils.FieldsScanner;
 
+import java.util.Date;
+
 /**
  * The type Add if max command.
  */
@@ -34,7 +36,13 @@ public class AddIfMaxCommand extends Command{
 
     @Override
     public String execute(Application application, User user) {
-        return application.getCollection().addIfMax(dr);
+        if(application.getCollection().isMax(dr)){
+            dr.setCreationDate(new Date());
+            dr.setOwnerName(user.getName());
+            application.manager.insertDragon(dr);
+            application.syncWithDB();
+            return application.getCollection().addIfMax(dr);
+        }else return "не добавлен т.к. не больший";
     }
 
     @Override

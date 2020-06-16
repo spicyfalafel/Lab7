@@ -5,6 +5,8 @@ import com.itmo.client.User;
 import com.itmo.collection.Dragon;
 import com.itmo.utils.FieldsScanner;
 
+import java.util.Date;
+
 /**
  * The type Add if min command.
  */
@@ -29,9 +31,14 @@ public class AddIfMinCommand extends Command {
     }
 
     @Override
-    public String execute(Application application, User user)
-    {
-        return application.getCollection().addIfMin(dr);
+    public String execute(Application application, User user) {
+        dr.setCreationDate(new Date());
+        dr.setOwnerName(user.getName());
+        if(application.getCollection().isMin(dr)){
+            application.manager.insertDragon(dr);
+            application.syncWithDB();
+            return application.getCollection().addIfMin(dr);
+        }else return "не добавлен т.к. не меньший";
     }
 
     @Override

@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Logger;
 import com.itmo.app.Application;
 import com.itmo.client.User;
 import com.itmo.commands.Command;
+import com.itmo.commands.ExitCommand;
 import com.itmo.utils.SerializationManager;
 import lombok.AllArgsConstructor;
 import org.slf4j.LoggerFactory;
@@ -22,15 +23,18 @@ public class ReadRequestThread extends Thread {
     private Application application;
     private User user;
 
+
     private final int DEFAULT_BUFFER_SIZE = 4096;
     private final ByteBuffer b = ByteBuffer.allocate(DEFAULT_BUFFER_SIZE);
     public final Logger log = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ReadRequestThread.class);
     @Override
     public void run() {
+
         while(true){
             Command command = null;
             while(command==null) command = getCommandFromClient(channel);
             new Thread(new RequestExecutorThread(command, channel, application, command.getUser())).start();
+            if(command instanceof ExitCommand) break;
         }
     }
 

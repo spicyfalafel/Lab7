@@ -23,7 +23,7 @@ public class ServerMain {
             Application application = new Application();
             ServerWithThreads server = new ServerWithThreads(port, logger);
             server.run(application);
-            Runtime.getRuntime().addShutdownHook(new Thread(()->logger.info("Сервер закончил работу")));
+            //Runtime.getRuntime().addShutdownHook(new Thread(()->logger.info("Сервер закончил работу")));
         }
     }
 }

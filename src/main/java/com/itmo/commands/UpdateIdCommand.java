@@ -1,5 +1,6 @@
 package com.itmo.commands;
 
+import com.itmo.Exceptions.NotYourPropertyException;
 import com.itmo.app.Application;
 import com.itmo.client.User;
 import com.itmo.collection.Dragon;
@@ -38,7 +39,9 @@ public class UpdateIdCommand extends Command{
     public String execute(Application application, User user) {
         try{
             long id = Long.parseLong(args[0].trim());
-            if(application.getCollection().findById(id)!=null){
+            Dragon prev = application.getCollection().findById(id);
+            if(prev!=null){
+                application.getCollection().remove(prev, user);
                 dr.setId(id);
                 application.getCollection().add(dr);
                 return "Дракон добавлен успешно!";
@@ -47,6 +50,8 @@ public class UpdateIdCommand extends Command{
             }
         }catch (NumberFormatException e){
             return "ID - это число";
+        }catch (NotYourPropertyException e){
+            return "этот дракон принадлежит " + e.getMessage();
         }
     }
 

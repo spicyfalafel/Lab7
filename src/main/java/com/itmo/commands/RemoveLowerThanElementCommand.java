@@ -32,7 +32,7 @@ public class RemoveLowerThanElementCommand extends Command {
 
     @Override
     public String execute(Application application, User user) {
-        return application.getCollection().removeLower(dr);
+        return application.getCollection().removeLower(dr, user);
     }
 
     @Override

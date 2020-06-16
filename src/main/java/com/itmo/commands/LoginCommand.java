@@ -37,6 +37,11 @@ public class LoginCommand extends Command{
     }
 
     @Override
+    public String getDescription() {
+        return "аутенфикация пользователя, требуется для доступа к командам";
+    }
+
+    @Override
     public int getNumberOfRequiredArgs() {
         return 0;
     }

@@ -2,7 +2,6 @@ package com.itmo.server;
 
 import com.itmo.app.Application;
 import com.itmo.client.User;
-import com.itmo.utils.SerializationManager;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -33,12 +32,23 @@ public class ServerWithThreads {
                 clientSocketChannel = accept();
                 if(clientSocketChannel!=null){
                     User newUser = new User("unregisterred", "");
-                    new Thread(new ReadRequestThread(clientSocketChannel,application, newUser)).start();
+                    new Thread(new ReadRequestThread(clientSocketChannel, application, newUser)).start();
                 }
             }catch (IOException e){
                 e.printStackTrace();
             }
         }
+        closeEverything();
+        System.exit(0);
+    }
+
+
+    private void closeEverything() {
+        try {
+            if (ssc != null) ssc.close();
+        } catch (IOException ignored) {
+        }
+        ssc = null;
     }
 
     public SocketChannel accept() throws IOException {

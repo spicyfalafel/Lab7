@@ -35,6 +35,7 @@ public class AddElementCommand extends Command {
     @Override
     public String execute(Application application, User user){
         dr.setCreationDate(new Date());
+        dr.setOwnerName(user.getName());
         application.manager.insertDragon(dr);
         application.syncWithDB();
         return "Дракон добавлен успешно!";

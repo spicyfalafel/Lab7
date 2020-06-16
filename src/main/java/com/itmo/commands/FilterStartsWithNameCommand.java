@@ -5,6 +5,7 @@ import com.itmo.client.User;
 import com.itmo.collection.Dragon;
 
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The type Filter starts with name command.
@@ -25,7 +26,7 @@ public class FilterStartsWithNameCommand extends Command {
 
     @Override
     public String execute(Application application, User user) {
-        HashSet<Dragon> res =
+        Set<Dragon> res =
                 application.getCollection().filterStartsWithName(args[0]);
         if(res.size()!=0){
             StringBuilder builder = new StringBuilder("Элементов в коллекции имена которых начинаются" +

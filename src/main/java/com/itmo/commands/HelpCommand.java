@@ -21,8 +21,13 @@ public class HelpCommand extends Command {
     }
 
     @Override
+    public void clientInsertion() {
+        System.out.println(CommandsInvoker.getInstance().printHelp());
+    }
+
+    @Override
     public String execute(Application application, User user) {
-        return CommandsInvoker.getInstance().printHelp();
+        return "";
     }
 
     @Override

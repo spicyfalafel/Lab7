@@ -12,19 +12,12 @@ import java.util.stream.Stream;
 
 public class MyDragonsCollection implements Serializable {
 
-    private HashSet<Dragon> dragons;
+    private Set<Dragon> dragons;
     private final Date creationDate;
 
-    /**
-     * Конструктор для пустой коллекции драконов
-     */
-    public MyDragonsCollection(){
-        creationDate = new Date();
-        dragons = new HashSet<>();
-    }
 
     public MyDragonsCollection(Set<Dragon> dragons){
-        this.dragons = new HashSet<>(dragons);
+        this.dragons = Collections.synchronizedSet(dragons);
         creationDate = new Date();
     }
 
@@ -38,8 +31,7 @@ public class MyDragonsCollection implements Serializable {
         return builder.toString();
     }
     public String clear(User user){
-        Set<Dragon> set = dragons.stream()
-                .filter(d -> d.getOwnerName().equals(user.getName())).collect(Collectors.toSet());
+        Set<Dragon> set = filterOwnDragon(user);
         for(Dragon d : set){
             try {
                 remove(d, user);
@@ -48,8 +40,14 @@ public class MyDragonsCollection implements Serializable {
         }
         return "Принадлежащие вам драконы очищены";
     }
+
+    private Set<Dragon> filterOwnDragon(User user) {
+        return Collections.synchronizedSet(dragons).stream()
+                .filter(d -> d.getOwnerName().equals(user.getName())).collect(Collectors.toSet());
+    }
+
     public String add(Dragon dragon){
-        Set<Long> setIds = dragons.stream().map(Dragon::getId).collect(Collectors.toSet());
+        Set<Long> setIds = Collections.synchronizedSet(dragons).stream().map(Dragon::getId).collect(Collectors.toSet());
         //генерация id
         for(long i = 0; i<Long.MAX_VALUE;i++){
             if(!setIds.contains(i)){
@@ -61,13 +59,20 @@ public class MyDragonsCollection implements Serializable {
         return "Дракон не добавлен потому что не удалось сгенерировать для него id.";
     }
     public String addIfMax(Dragon dragon){
-        if(findMaxValue()<dragon.getValue()){
+        if(isMax(dragon)){
             return add(dragon);
         }
         return "Не добавлен, т.к. не больший";
     }
+    public boolean isMax(Dragon dragon){
+        return (findMaxValue()<dragon.getValue());
+    }
+    public boolean isMin(Dragon dragon){
+        return Collections.synchronizedSet(dragons).stream().
+                noneMatch(d -> (d.getValue()<dragon.getValue()));
+    }
     public String addIfMin(Dragon dragon){
-        if(dragons.stream().anyMatch(d -> (d.getValue()<dragon.getValue()))){
+        if(isMin(dragon)){
             return "Не добавлен, т.к. не меньший";
         }else{
             return add(dragon);
@@ -84,12 +89,16 @@ public class MyDragonsCollection implements Serializable {
      * удалить из коллекции все элементы, меньшие, чем заданный
      * @param dragon дракон с которым будут сравниваться все элементы коллекции
      */
-    public String removeLower(Dragon dragon) {
+    public String removeLower(Dragon dragon, User user) {
         StringBuilder builder = new StringBuilder();
-        dragons.stream().filter(d -> d.getValue() < dragon.getValue())
+        filterOwnDragon(user).stream().filter(d -> d.getValue() < dragon.getValue())
                 .forEach(dr -> {
                     builder.append("Удален дракон с id ").append(dr.getId()).append("\n");
-                    dragons.remove(dr);
+                    try {
+                        remove(dr, user);
+                    } catch (NotYourPropertyException e) {
+                        e.printStackTrace();
+                    }
                 });
         if(builder.length()==0) return "Нет драконов меньше чем заданный";
         return builder.toString();
@@ -99,10 +108,9 @@ public class MyDragonsCollection implements Serializable {
      * @param name является началом имени драконов которых нужно получить
      * @return сет драконов в отфильтрованном порядке
      */
-    public HashSet<Dragon> filterStartsWithName(String name){
-        Set<Dragon> dr = dragons.stream()
+    public Set<Dragon> filterStartsWithName(String name){
+        return Collections.synchronizedSet(dragons).stream()
                 .filter(d -> d.getName().trim().startsWith(name)).collect(Collectors.toSet());
-        return (HashSet<Dragon>) dr;
     }
 
     /**
@@ -110,7 +118,7 @@ public class MyDragonsCollection implements Serializable {
      */
     public String printDescending(){
         StringBuilder builder = new StringBuilder();
-        dragons.stream().sorted((o1, o2) -> (int) (o2.getValue()-o1.getValue()))
+        Collections.synchronizedSet(dragons).stream().sorted((o1, o2) -> (int) (o2.getValue()-o1.getValue()))
                 .forEach(d -> builder.append(d.getName())
                         .append(" with value ").append(d.getValue()).append("\n"));
         return builder.toString();
@@ -133,7 +141,7 @@ public class MyDragonsCollection implements Serializable {
 
     public float findMaxValue(){
         return (dragons.size()==0 ? 0 :
-                dragons.stream()
+                Collections.synchronizedSet(dragons).stream()
                 .max(Comparator.comparing(Dragon::getValue))
                         .get().getValue());
     }
@@ -155,7 +163,7 @@ public class MyDragonsCollection implements Serializable {
         "\nКоличество элементов: " + dragons.size();
     }
 
-    public HashSet<Dragon> getDragons() {
+    public Set<Dragon> getDragons() {
         return dragons;
     }
 }
